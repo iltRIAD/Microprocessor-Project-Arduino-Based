@@ -1,0 +1,49 @@
+#include <Servo.h>
+#include <Wire.h>
+#include <LiquidCrystal_I2C.h>
+ 
+Servo servoMain;
+ 
+int trigpin = 9;
+int echopin = 8;
+int distance;
+float duration;
+float cm;
+ 
+LiquidCrystal_I2C lcd(0x27, 16, 2);  // Adjust the address and LCD size if you have a different one
+ 
+void setup() {
+  servoMain.attach(7);
+  pinMode(trigpin, OUTPUT);
+  pinMode(echopin, INPUT);
+ 
+  lcd.begin(16, 2);  // Adjust the LCD size if you have a different one
+}
+ 
+void loop() {
+  digitalWrite(trigpin, LOW);
+  delay(2);
+  digitalWrite(trigpin, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(trigpin, LOW);
+ 
+  duration = pulseIn(echopin, HIGH);
+  cm = (duration / 58.82);
+  distance = cm;
+ 
+  if (distance < 30) {
+    servoMain.write(180);
+    lcd.clear();
+    lcd.setCursor(0, 0);
+    lcd.print("Object Detected!");
+    lcd.setCursor(0, 1);
+    lcd.print("Distance: " + String(distance) + " cm");
+    delay(3000);
+  } else {
+    servoMain.write(0);
+    lcd.clear();
+    lcd.setCursor(0, 0);
+    lcd.print("No Object");
+    delay(50);
+  }
+}
